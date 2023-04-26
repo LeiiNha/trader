@@ -14,6 +14,7 @@ enum RequestError: Error {
 }
 
 protocol NetworkServiceProtocol {
+    var subscribedTraderPublisher: AnyPublisher<[Datum], Never> { get }
     func fetchCompanyDetails(_ company: String) -> AnyPublisher<Company, RequestError>?
     func connectWebsocket()
     func disconnectWebsocket()
@@ -24,7 +25,9 @@ final class NetworkService: NSObject {
     private let BASE_URL = "https://finnhub.io/api/v1"
     private var webSocket: URLSessionWebSocketTask?
     private var subscriptions: Set<AnyCancellable> = .init()
+    private var subscribedTraderPassthrough: PassthroughSubject<[Datum], Never> = .init()
 
+    // TODO: IMPROVE
     func receive(){
       guard let webSocket = webSocket else { return }
           let workItem = DispatchWorkItem { [weak self] in
@@ -36,8 +39,9 @@ final class NetworkService: NSObject {
                       case .string(let strMessgae):
                       print("String received \(strMessgae)")
                           let jsonData = Data(strMessgae.utf8)
-                          let trade = try? JSONDecoder().decode(Trade.self, from: jsonData)
-                          print(trade)
+                          if let trade = try? JSONDecoder().decode(Trade.self, from: jsonData) {
+                              self?.subscribedTraderPassthrough.send(trade.data)
+                          }
                       default:
                           break
                       }
@@ -50,6 +54,7 @@ final class NetworkService: NSObject {
         DispatchQueue.global().asyncAfter(deadline: .now() + 1 , execute: workItem)
       }
 
+    // TODO: ADD QUERYITEM
     func fetchStockList() {
         guard let url = URL(string: "https://finnhub.io/api/v1/stock/symbol?exchange=US&token=\(API_KEY)") else { return }
         connectWebsocket()
@@ -69,6 +74,7 @@ final class NetworkService: NSObject {
              .store(in: &subscriptions)
     }
 
+    //TODO: IMPROVE
     func subscribeToSymbol(_ symbol: String) {
         let jsonToSend = """
         {"type":"subscribe","symbol":"\(symbol)"}
@@ -83,21 +89,20 @@ final class NetworkService: NSObject {
 }
 
 extension NetworkService: NetworkServiceProtocol {
-    func disconnectWebsocket() {
-        webSocket?.cancel(with: .goingAway, reason: "You've Closed The Connection".data(using: .utf8))
+    var subscribedTraderPublisher: AnyPublisher<[Datum], Never> {
+        subscribedTraderPassthrough.eraseToAnyPublisher()
     }
 
-    func connectWebsocket() {
-        //Session
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
+    func disconnectWebsocket() {
+        webSocket?.cancel(with: .goingAway, reason: "Connection closed".data(using: .utf8))
+    }
 
-        //Server API
+    // TODO: ADD QUERYITEM
+    func connectWebsocket() {
+        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
         let url = URL(string:  "wss://ws.finnhub.io?token=\(API_KEY)")
 
-        //Socket
         webSocket = session.webSocketTask(with: url!)
-
-        //Connect and hanles handshake
         webSocket?.resume()
     }
 
@@ -123,7 +128,7 @@ extension NetworkService: URLSessionWebSocketDelegate {
     }
 
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-        print("Disconnect from Server \(reason)")
+        print("Disconnect from Server \(String(describing: reason))")
         webSocket = nil
     }
 }
