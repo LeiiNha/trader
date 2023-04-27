@@ -13,12 +13,15 @@ struct Trade: Codable {
 }
 
 // MARK: - Datum
-struct Datum: Codable {
+struct Datum: Codable, Hashable {
+    let uuid = UUID()
     let tradeCondition: [String]
     let lastPrice: Double
     let symbol: String
     let timestamp: Int
     let volume: Int
+    var difference: Difference = .equal
+    var differenceValue: Double = 0
 
     enum CodingKeys: String, CodingKey {
         case tradeCondition = "c"
@@ -27,4 +30,20 @@ struct Datum: Codable {
         case timestamp = "t"
         case volume = "v"
     }
+
+    enum Difference {
+        case up
+        case down
+        case equal
+    }
 }
+
+//extension Datum: Hashable {
+//    static func ==(lhs: Datum, rhs: Datum) -> Bool {
+//        return lhs.uuid == rhs.uuid
+//    }
+//
+//    func hash(into hasher: inout Hasher) {
+//        hasher.combine(uuid)
+//    }
+//}

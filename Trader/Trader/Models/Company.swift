@@ -13,7 +13,7 @@ struct Company: Codable {
     let logo: String
     let marketCapitalization: Double
     let name, phone: String
-    let shareOutstanding: Int
+    let shareOutstanding: Double
     let ticker: String
     let weburl: String
 }
