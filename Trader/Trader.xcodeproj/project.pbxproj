@@ -126,6 +126,7 @@
 		CC51213629F92281000333D0 /* Trader */ = {
 			isa = PBXGroup;
 			children = (
+				CC51217A29F92D2D000333D0 /* README.md */,
 				CC51217B29F9349A000333D0 /* Models */,
 				CC51217729F92585000333D0 /* Coordinator */,
 				CC51216A29F9241A000333D0 /* Services */,
@@ -190,7 +191,6 @@
 			isa = PBXGroup;
 			children = (
 				CC51216B29F92434000333D0 /* NetworkService.swift */,
-				CC51217A29F92D2D000333D0 /* README.md */,
 				CC51218429FAF349000333D0 /* Services.swift */,
 				CC51218629FAF459000333D0 /* PersistencyService.swift */,
 				CC51218829FAF49E000333D0 /* ReachabilityService.swift */,

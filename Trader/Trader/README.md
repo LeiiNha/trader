@@ -1,4 +1,17 @@
 
+# What I would have done if I had more time
+1. Unit tests 
+    a. Mock service layer and test view models
+    b. Test PersistencyService
+2. Refactored networkservice(added todo's there to show what i meant)
+3. There's a simulator bug when it comes to nwpathmonitor but i think theres a workaround for that
+4. I'd add SDWebImage to handle the SVG image that's downloaded
+5. I'd add a loader before showing the details since it's still fetching from a URL
+6. I'd have a search list with all possible symbols in order to select which one to subscribe (There's a method in NetworkService that does it, I'd need to implement it tho')
+7. Unfortunately I feel like I lacked some knowledge in stocks in order to understand some things, I'd spend some time understanding the business
+
+
+# Task
 Please read the instructions carefully and ensure you understand the requirements before you start coding.
 
 There is no time limit on the task, so you can work on it over the next couple of days as your time allows. Keep focused on the quality of your code and the chosen solutions.
